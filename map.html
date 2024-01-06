@@ -13,11 +13,12 @@
     <div id="map"></div>
 <div id="control-panel">
     <div id="controls">
-        <div id="date-display">Latest Date:</div>
+        <label for="date-display">Date</label>
+        <div id="date-display"></div>
         <label for="delay-input">Delay (ms):</label>
-        <input type="number" id="delay-input" value="1000" />
+        <input type="number" id="delay-input" value="15" step="5" />
         
-        <label for="run-zoom-input">Run Zoom:</label>
+        <label for="run-zoom-input">Map Zoom:</label>
         <input type="number" id="run-zoom-input" value="13" />
         
         <button onclick="startDrawing()">Start Drawing</button>

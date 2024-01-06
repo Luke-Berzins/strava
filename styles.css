@@ -10,21 +10,20 @@ html, body {
 }
 #control-panel {
     position: absolute;
-    bottom: 10px; /* Position at the bottom with 10px offset */
+    bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 500;
     background-color: #2D3748; /* Dark background for contrast */
     color: white;
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    padding: 10px 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     display: flex;
-    flex-direction: column;
     align-items: center;
     gap: 10px;
 }
-#controls .input-group, #controls .button-group {
+#controls {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -32,36 +31,40 @@ html, body {
 #controls label {
     font-size: 1rem;
     margin-right: 5px;
+    color: #9FA6B2; /* Lighter text for labels */
 }
-#controls input[type="number"] {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
+#controls input[type="number"], #controls button {
+    padding: 10px 15px;
+    border: 2px solid #4CAF50; /* Matching border color to buttons */
+    background-color: #4A5568; /* Slightly lighter than the control panel */
+    border-radius: 8px;
     font-size: 1rem;
-    background-color: #4A5568;
     color: white;
-    width: 80px; /* Adjust the width as needed */
+    width: auto; /* Adjust the width as needed */
+    outline: none; /* Remove the default focus outline */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transitions for interactions */
+}
+#controls input[type="number"]:focus {
+    border-color: #63B3ED; /* Highlight color when input is focused */
 }
 #controls button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
     cursor: pointer;
-    background-color: #4CAF50;
-    color: white;
+    background-color: #4CAF50; /* Green */
+    border: none;
 }
 #controls button:hover {
-    background-color: #45a049;
+    background-color: #45a049; /* Darker green on hover */
+    transform: translateY(-2px); /* Slight raise effect on hover */
 }
 #date-display {
-    padding: 8px 16px;
+    margin-top: 10px;
+    background-color: #2D3748; /* Matching the control panel background */
     border-radius: 8px;
-    background-color: #2D3748;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 10px 15px;
     font-size: 1rem;
     min-width: 200px;
     text-align: center;
-    width: 100%; /* Full width to maintain size */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%; /* Full width */
+    box-sizing: border-box;
 }
