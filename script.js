@@ -9,6 +9,7 @@ var colors = ['blue', 'green', 'red', 'purple', 'orange']; // Different colors f
 var isDrawing = false;
 var delay;
 var shouldZoom = true; // Flag for whether to zoom to each run
+
 function drawLineSegment(line, startPoint, endPoint, numSteps, stepDuration, onCompleted) {
     let currentStep = 0;
     let latDiff = (endPoint.lat - startPoint.lat) / numSteps;
@@ -30,46 +31,60 @@ function drawLineSegment(line, startPoint, endPoint, numSteps, stepDuration, onC
         }
     }, stepDuration);
 }
-
 function drawRun(runIndex, pointIndex, line) {
     if (runIndex < runs.length && isDrawing) {
         var run = runs[runIndex];
-        
-        // Check if we're at the first point of the run
+
+        // When starting a new run, update the date display with its start time
         if (pointIndex === 0) {
-            // Create a new polyline
+            updateDateDisplay(run[0].time);
+            // If shouldZoom is true, zoom to the first point of the run
+            if (shouldZoom) {
+                map.setView(new L.LatLng(run[0].latitude, run[0].longitude), parseInt(document.getElementById('run-zoom-input').value));
+            }
+            // Initialize a new polyline for the run
             line = L.polyline([], {
                 color: colors[runIndex % colors.length],
                 weight: 4,
                 opacity: 0.6,
                 smoothFactor: 1
             }).addTo(map);
-
-            // If shouldZoom is true, set the map's view to the first point of the run
-            if (shouldZoom) {
-                map.setView(new L.LatLng(run[0].latitude, run[0].longitude), parseInt(document.getElementById('run-zoom-input').value));
-            }
         }
 
-        // If there are more points to draw, draw the next segment
-        if (pointIndex < run.length - 1) {
-            let startPoint = new L.LatLng(run[pointIndex].latitude, run[pointIndex].longitude);
-            let endPoint = new L.LatLng(run[pointIndex + 1].latitude, run[pointIndex + 1].longitude);
+        // Draw each point in the run
+        if (pointIndex < run.length) {
+            let currentPoint = run[pointIndex];
+            line.addLatLng(new L.LatLng(currentPoint.latitude, currentPoint.longitude));
 
-            // Draw the segment to the next point
-            drawLineSegment(line, startPoint, endPoint, 10, delay / 10, function() {
-                // Proceed to the next segment
+            var currentDelay = parseInt(document.getElementById('delay-input').value);
+            if (isNaN(currentDelay) || currentDelay < 0) {
+                currentDelay = 60; // Default value if input is invalid
+            }
+
+            // Schedule the next point to be drawn using the current delay
+            setTimeout(function() {
                 drawRun(runIndex, pointIndex + 1, line);
-            });
+            }, currentDelay);
         } else {
-            // All points in the current run have been drawn, move to the next run
+            // After the last point, schedule the next run
             setTimeout(function() {
                 drawRun(runIndex + 1, 0, null);
-            }, delay);
+            }, currentDelay);
         }
     }
 }
 
+
+function updateDateDisplay(isoDateString) {
+    var lastPointTime = new Date(isoDateString);
+    var formattedDate = lastPointTime.getDate() + ' ' 
+                        + lastPointTime.toLocaleString('default', { month: 'long' }) + ' ' 
+                        + lastPointTime.getFullYear();
+    document.getElementById('date-display').textContent = formattedDate;
+}
+
+// Call this function with the first run and the first point to start the animation
+drawRun(0, 0, null);
 
 // To start drawing
 drawRun(0, 0, null);
