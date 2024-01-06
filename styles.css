@@ -1,0 +1,67 @@
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+#map {
+    height: 100%;
+    width: 100%;
+}
+#control-panel {
+    position: absolute;
+    bottom: 10px; /* Position at the bottom with 10px offset */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 500;
+    background-color: #2D3748; /* Dark background for contrast */
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+#controls .input-group, #controls .button-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+#controls label {
+    font-size: 1rem;
+    margin-right: 5px;
+}
+#controls input[type="number"] {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    background-color: #4A5568;
+    color: white;
+    width: 80px; /* Adjust the width as needed */
+}
+#controls button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+}
+#controls button:hover {
+    background-color: #45a049;
+}
+#date-display {
+    padding: 8px 16px;
+    border-radius: 8px;
+    background-color: #2D3748;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 1rem;
+    min-width: 200px;
+    text-align: center;
+    width: 100%; /* Full width to maintain size */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
