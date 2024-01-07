@@ -9,6 +9,8 @@ var colors = ['blue', 'green', 'red', 'purple', 'orange']; // Different colors f
 var isDrawing = false;
 var delay;
 var shouldZoom = true; // Flag for whether to zoom to each run
+var currentRunIndex = 0
+
 
 function drawLineSegment(line, startPoint, endPoint, numSteps, stepDuration, onCompleted) {
     let currentStep = 0;
@@ -47,7 +49,7 @@ function drawRun(runIndex, pointIndex, line) {
                 color: colors[runIndex % colors.length],
                 weight: 4,
                 opacity: 0.6,
-                smoothFactor: 1
+                smoothFactor: 5
             }).addTo(map);
         }
 
@@ -68,6 +70,7 @@ function drawRun(runIndex, pointIndex, line) {
         } else {
             // After the last point, schedule the next run
             setTimeout(function() {
+                currentRunIndex = runIndex + 1
                 drawRun(runIndex + 1, 0, null);
             }, currentDelay);
         }
@@ -84,10 +87,8 @@ function updateDateDisplay(isoDateString) {
 }
 
 // Call this function with the first run and the first point to start the animation
-drawRun(0, 0, null);
+drawRun(currentRunIndex, 0, null);
 
-// To start drawing
-drawRun(0, 0, null);
 
 function toggleZoom() {
     shouldZoom = !shouldZoom;
@@ -95,19 +96,21 @@ function toggleZoom() {
     zoomButton.textContent = shouldZoom ? 'Disable Zoom' : 'Enable Zoom';
 }
 
+
+
 function startDrawing() {
-delay = parseInt(document.getElementById('delay-input').value);
+    
+    delay = parseInt(document.getElementById('delay-input').value);
 
-if (isNaN(delay) || delay <= 0) {
-alert("Please enter a valid delay time in milliseconds.");
-return;
-}
+    if (isNaN(delay) || delay <= 0) {
+        alert("Please enter a valid delay time in milliseconds.");
+        return;
+    }
 
-isDrawing = true;
-drawRun(0, 0, null);
-
+    isDrawing = true;
+    drawRun(currentRunIndex, 0, null)
 }
 
 function stopDrawing() {
-isDrawing = false;
+    isDrawing = false;
 }

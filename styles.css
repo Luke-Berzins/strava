@@ -12,7 +12,8 @@ html, body {
     position: absolute;
     bottom: 10px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) ;
+    filter: blur(.0px);
     z-index: 500;
     background-color: #2D3748; /* Dark background for contrast */
     color: white;
