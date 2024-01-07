@@ -42,7 +42,7 @@ function drawRun(runIndex, pointIndex, line) {
             updateDateDisplay(run[0].time);
             // If shouldZoom is true, zoom to the first point of the run
             if (shouldZoom) {
-                map.setView(new L.LatLng(run[0].latitude, run[0].longitude), parseInt(document.getElementById('run-zoom-input').value));
+                map.setView(new L.LatLng(run[0].latitude, run[0].longitude), parseInt(document.getElementById('run-zoom-input').value) > 0 ? parseInt(document.getElementById('run-zoom-input').value) : 4);
             }
             // Initialize a new polyline for the run
             line = L.polyline([], {
