@@ -12,13 +12,17 @@
 </head>
 <body>
     <div id="map"></div>
+    <button id="toggle-control-panel">Hide Controls</button>
     <div id="control-panel">
         <div id="controls">
 
             <div class="input-group">
                 <label for="date-display">Date</label>
                 <div id="date-display"></div>
-
+                <label for="total-distance-display">Run Distance (km)</label>
+                <div id="total-distance-display"></div>
+                <label for="cumulative-distance-display">Total Distance (km)</label>
+                <div id="cumulative-distance-display"></div>
     
 
                 <label for="delay-input">Delay (ms):</label>
@@ -27,13 +31,15 @@
     
 
                 <label for="run-zoom-input">Map Zoom:</label>
-                <input type="number" id="run-zoom-input" value="12" />
+                <input type="number" id="run-zoom-input" value="13" />
             </div>
     
             <div class="button-group">
                 <button onclick="startDrawing()">Start Drawing</button>
                 <button onclick="stopDrawing()">Stop Drawing</button>
                 <button id="zoom-toggle" onclick="toggleZoom()">Disable Zoom</button>
+                <button onclick="goBack20Runs()">Go Back 20 Runs</button>
+
             </div>
         </div>
     </div>

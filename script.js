@@ -1,6 +1,6 @@
 var map = L.map('map').setView([runs[0][0].latitude, runs[0][0].longitude], 13);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+L.tileLayer('http://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}.png', {
     maxZoom: 20,
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
@@ -10,30 +10,27 @@ var isDrawing = false;
 var delay;
 var shouldZoom = true; // Flag for whether to zoom to each run
 var currentRunIndex = 0
+let drawnLines = []; // Array to store references to drawn line segments
+let timeoutIds = []; // Array to store timeout IDs
+var cumulativeDistance = 0.0; // Global variable to hold the cumulative distance
 
 
-function drawLineSegment(line, startPoint, endPoint, numSteps, stepDuration, onCompleted) {
-    let currentStep = 0;
-    let latDiff = (endPoint.lat - startPoint.lat) / numSteps;
-    let lngDiff = (endPoint.lng - startPoint.lng) / numSteps;
+document.getElementById('toggle-control-panel').addEventListener('click', function() {
+    var controlPanel = document.getElementById('control-panel');
+    var toggleButton = document.getElementById('toggle-control-panel');
 
-    let lineSegmentInterval = setInterval(() => {
-        if (currentStep < numSteps) {
-            // Create the next point along the line
-            let nextPoint = new L.LatLng(
-                startPoint.lat + latDiff * currentStep,
-                startPoint.lng + lngDiff * currentStep
-            );
-            line.addLatLng(nextPoint);
-            currentStep++;
-        } else {
-            // Clear the interval and call the completion callback if provided
-            clearInterval(lineSegmentInterval);
-            if (typeof onCompleted === 'function') onCompleted();
-        }
-    }, stepDuration);
-}
+    if (controlPanel.style.display === 'none') {
+        controlPanel.style.display = 'block'; // Show the control panel
+        toggleButton.textContent = 'Hide Controls'; // Update button text
+    } else {
+        controlPanel.style.display = 'none'; // Hide the control panel
+        toggleButton.textContent = 'Show Controls'; // Update button text
+    }
+});
+
+
 function drawRun(runIndex, pointIndex, line) {
+    
     if (runIndex < runs.length && isDrawing) {
         var run = runs[runIndex];
 
@@ -41,23 +38,37 @@ function drawRun(runIndex, pointIndex, line) {
         if (pointIndex === 0) {
             updateDateDisplay(run[0].time);
             // If shouldZoom is true, zoom to the first point of the run
-            if (shouldZoom) {
-                map.setView(new L.LatLng(run[0].latitude, run[0].longitude), parseInt(document.getElementById('run-zoom-input').value) > 0 ? parseInt(document.getElementById('run-zoom-input').value) : 4);
-            }
+            // if (shouldZoom) {
+            //     map.setView(new L.LatLng(run[pointIndex].latitude, run[pointIndex].longitude), parseInt(document.getElementById('run-zoom-input').value) > 0 ? parseInt(document.getElementById('run-zoom-input').value) : 4);
+            // }
             // Initialize a new polyline for the run
             line = L.polyline([], {
                 color: colors[runIndex % colors.length],
                 weight: 4,
                 opacity: 0.6,
-                smoothFactor: 5
+                smoothFactor: 1
             }).addTo(map);
+            drawnLines[runIndex] = [];
+            drawnLines[runIndex].push(line);      
         }
 
         // Draw each point in the run
         if (pointIndex < run.length) {
             let currentPoint = run[pointIndex];
+            
             line.addLatLng(new L.LatLng(currentPoint.latitude, currentPoint.longitude));
+            // Update the total distance display
+            let totalDistance = currentPoint.distance; // Assuming 'distance' is in kilometers
+            document.getElementById('total-distance-display').textContent = totalDistance.toFixed(2);
 
+            if (pointIndex === run.length - 1) { // Check if it's the last point of the run
+                cumulativeDistance += totalDistance; // Add to cumulative distance
+                document.getElementById('cumulative-distance-display').textContent = cumulativeDistance.toFixed(1);
+            }
+
+            if (shouldZoom && pointIndex % 20 === 0) {
+                map.setView(new L.LatLng(run[pointIndex].latitude, run[pointIndex].longitude), parseInt(document.getElementById('run-zoom-input').value) > 0 ? parseInt(document.getElementById('run-zoom-input').value) : 4);
+            }
             var currentDelay = parseInt(document.getElementById('delay-input').value);
             if (isNaN(currentDelay) || currentDelay < 0) {
                 currentDelay = 60; // Default value if input is invalid
@@ -95,6 +106,59 @@ function toggleZoom() {
     var zoomButton = document.getElementById('zoom-toggle');
     zoomButton.textContent = shouldZoom ? 'Disable Zoom' : 'Enable Zoom';
 }
+function goBack20Runs() {
+    let runsToRemove = Math.min(20, currentRunIndex);
+
+    if (runsToRemove > 0 || isDrawing) {
+        isDrawing = false;
+
+        // Wait for any ongoing drawing to stop
+        setTimeout(function() {
+            // Remove segments from the current (unfinished) run
+            if (drawnLines[currentRunIndex]) {
+                drawnLines[currentRunIndex].forEach(line => map.removeLayer(line));
+                drawnLines[currentRunIndex] = [];
+            }
+
+            // Remove the last 20 (or fewer) completed runs
+            for (let i = 0; i < runsToRemove; i++) {
+                let runIndex = currentRunIndex - i - 1;
+                let segments = drawnLines[runIndex];
+                if (segments) {
+                    segments.forEach(line => map.removeLayer(line));
+                    drawnLines[runIndex] = []; // Clear the segments for this run
+                }
+            }
+
+            // Update the current run index
+            currentRunIndex -= runsToRemove;
+            currentRunIndex = Math.max(0, currentRunIndex); // Ensure it doesn't go below 0
+
+            // Restart drawing from the updated index
+            if (isDrawing) {
+
+                startDrawingFromIndex(currentRunIndex);
+            }
+        }, 100); // Adjust delay as needed
+
+    }
+
+    let newStartRun = runs[currentRunIndex];
+    if (newStartRun && newStartRun.length > 0) {
+        let startPoint = newStartRun[0];
+        let totalDistance = startPoint.distance;
+        document.getElementById('total-distance-display').textContent = totalDistance.toFixed(2);
+    }
+    cumulativeDistance = 0.0;
+    for (let i = 0; i < currentRunIndex; i++) {
+        if (runs[i].length > 0) {
+            cumulativeDistance += runs[i][runs[i].length - 1].distance;
+        }
+    }
+
+    document.getElementById('cumulative-distance-display').textContent = cumulativeDistance.toFixed(1);
+}
+
 
 
 
@@ -113,4 +177,9 @@ function startDrawing() {
 
 function stopDrawing() {
     isDrawing = false;
+}
+
+function startDrawingFromIndex(startIndex) {
+    isDrawing = true;
+    drawRun(startIndex, 0, null);
 }

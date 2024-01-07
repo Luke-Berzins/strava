@@ -81,6 +81,14 @@ html, body {
 
 @media (max-width: 600px) {
     #control-panel {
-        opacity: 80%; /* Adjust based on the height of your control panel */
+        opacity: 75%; /* Adjust based on the height of your control panel */
     }
 } 
+
+#toggle-control-panel {
+    position: absolute;
+    top: 10px; /* Adjust as needed */
+    right: 10px; /* Adjust as needed */
+    z-index: 501; /* Ensure it's above the control-panel */
+    /* Additional styling */
+}
